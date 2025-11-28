@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Cubos en THREE.JS</title>
+    <title>Cubo en THREE.JS</title>
 
     <style>
         body { margin: 0; overflow: hidden; background: #111; }
@@ -15,7 +15,7 @@
 
 <script>
 
-// CREAR ESCENA
+// ESCENA
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 6;
@@ -24,36 +24,36 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-
-// MATERIALES Y CUBOS
+// MATERIAL (transparente)
 const material = new THREE.MeshPhongMaterial({
     color: 0x66ccff,
     transparent: true,
-    opacity: 0.5
+    opacity: 0.4
 });
 
-// CUBO GRANDE
-const grande = new THREE.Mesh(
-    new THREE.BoxGeometry(3, 3, 3),
-    material
+// GEOMETRÍA
+const geometry = new THREE.BoxGeometry(3, 3, 3);
+
+// CUBO PRINCIPAL
+const cubo = new THREE.Mesh(geometry, material);
+
+// ARISTAS (wireframe)
+const edges = new THREE.EdgesGeometry(geometry);
+const lineas = new THREE.LineSegments(
+    edges,
+    new THREE.LineBasicMaterial({ color: 0xffffff })
 );
 
-// CUBO PEQUEÑO
-const pequeño = new THREE.Mesh(
-    new THREE.BoxGeometry(1.5, 1.5, 1.5),
-    material
-);
+scene.add(cubo);
+scene.add(lineas);
 
-scene.add(grande);
-scene.add(pequeño);
-
-// Luz
+// LUZ
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(3, 4, 5);
 scene.add(light);
 
-// MODO ACTUAL (T, R o S)
-let modo = "T";  // traslación por defecto
+// MODO DE TRANSFORMACIÓN
+let modo = "T";  // Traslación por defecto
 
 document.addEventListener("keydown", (e) => {
 
@@ -61,32 +61,35 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "r" || e.key === "R") modo = "R";
     if (e.key === "s" || e.key === "S") modo = "S";
 
-    let obj = grande; // objeto a transformar
-
     // TRASLACIÓN
     if (modo === "T") {
-        if (e.key === "ArrowUp") obj.position.y += 0.1;
-        if (e.key === "ArrowDown") obj.position.y -= 0.1;
-        if (e.key === "ArrowLeft") obj.position.x -= 0.1;
-        if (e.key === "ArrowRight") obj.position.x += 0.1;
+        if (e.key === "ArrowUp") cubo.position.y += 0.1;
+        if (e.key === "ArrowDown") cubo.position.y -= 0.1;
+        if (e.key === "ArrowLeft") cubo.position.x -= 0.1;
+        if (e.key === "ArrowRight") cubo.position.x += 0.1;
     }
 
     // ROTACIÓN
     if (modo === "R") {
-        if (e.key === "ArrowUp") obj.rotation.x -= 0.1;
-        if (e.key === "ArrowDown") obj.rotation.x += 0.1;
-        if (e.key === "ArrowLeft") obj.rotation.y -= 0.1;
-        if (e.key === "ArrowRight") obj.rotation.y += 0.1;
+        if (e.key === "ArrowUp") cubo.rotation.x -= 0.1;
+        if (e.key === "ArrowDown") cubo.rotation.x += 0.1;
+        if (e.key === "ArrowLeft") cubo.rotation.y -= 0.1;
+        if (e.key === "ArrowRight") cubo.rotation.y += 0.1;
     }
 
     // ESCALA
-
     if (modo === "S") {
-        if (e.key === "ArrowUp") obj.scale.y += 0.1;
-        if (e.key === "ArrowDown") obj.scale.y -= 0.1;
-        if (e.key === "ArrowLeft") obj.scale.x -= 0.1;
-        if (e.key === "ArrowRight") obj.scale.x += 0.1;
+        if (e.key === "ArrowUp") cubo.scale.y += 0.1;
+        if (e.key === "ArrowDown") cubo.scale.y -= 0.1;
+        if (e.key === "ArrowLeft") cubo.scale.x -= 0.1;
+        if (e.key === "ArrowRight") cubo.scale.x += 0.1;
     }
+
+    // IMPORTANTE: Las líneas (wireframe) deben seguir la transformación
+    lineas.position.copy(cubo.position);
+    lineas.rotation.copy(cubo.rotation);
+    lineas.scale.copy(cubo.scale);
+
 });
 
 // ANIMACIÓN
@@ -96,6 +99,7 @@ function render() {
 }
 
 render();
+
 </script>
 
 </body>
